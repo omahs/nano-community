@@ -6,18 +6,19 @@ import LinearProgress from '@mui/material/LinearProgress'
 import { DataGrid } from '@mui/x-data-grid'
 import BigNumber from 'bignumber.js'
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
+import { useTranslation } from 'react-i18next'
 
 import Uptime from '@components/uptime'
 import { timeago } from '@core/utils'
 
 import './representatives.styl'
 
-function bytesToSize(bytes) {
+function bytesToSize({ bytes, t }) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   if (bytes === 0)
     return {
       value: 0,
-      label: 'Unlimited'
+      label: t('common.unlimited', 'Unlimited')
     }
 
   const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10)
@@ -36,17 +37,15 @@ function bytesToSize(bytes) {
   }
 }
 
-export default class Representatives extends React.Component {
-  render() {
-    const {
-      accounts,
-      totalWeight,
-      isLoading,
-      quorumTotal,
-      table_height = 600
-    } = this.props
-
-    const denominator = quorumTotal || totalWeight
+export default function Representatives({
+  accounts,
+  totalWeight,
+  quorumTotal,
+  isLoading,
+  table_height = 600
+}) {
+  const { t } = useTranslation()
+  const denominator = quorumTotal || totalWeight
 
     const columns = [
       {
@@ -58,12 +57,12 @@ export default class Representatives extends React.Component {
       },
       {
         field: 'alias',
-        headerName: 'Alias',
+        headerName: t('representatives.alias', 'Alias'),
         width: 200
       },
       {
         field: 'account',
-        headerName: 'Account',
+        headerName: t('common.account', { count: 1, defaultValue: 'Account' }),
         renderCell: (p) => (
           <Link to={`/${p.row.account}`}>{p.row.account}</Link>
         ),
@@ -71,17 +70,24 @@ export default class Representatives extends React.Component {
       },
       {
         field: 'weight',
-        headerName: 'Weight',
+        headerName: t('common.weight', 'Weight'),
         width: 140,
         valueFormatter: (p) =>
-          p.value ? `${BigNumber(p.value).shiftedBy(-30).toFormat(0)}` : null,
+          p.value
+            ? `${BigNumber(p.value)
+                .shiftedBy(-30)
+                .toFormat(0)}`
+            : null,
         valueGetter: (p) => p.row.account_meta.weight
       },
       {
         field: 'weight_pct',
         headerName: '%',
         width: 80,
-        valueFormatter: (p) => (p.value ? `${p.value.toFixed(2)}%` : null),
+        valueFormatter: (p) =>
+          p.value
+            ? `${p.value.toFixed(2)}%`
+            : null,
         valueGetter: (p) =>
           p.row.account_meta.weight
             ? BigNumber(p.row.account_meta.weight)
@@ -91,110 +97,122 @@ export default class Representatives extends React.Component {
       },
       {
         field: 'confs_behind',
-        headerName: 'Confs Behind',
+        headerName: t('common.confirmations_behind', 'Confs Behind'),
         width: 145,
-        valueFormatter: (p) => (p.value ? BigNumber(p.value).toFormat() : null),
+        valueFormatter: (p) =>
+          p.value
+            ? BigNumber(p.value).toFormat()
+            : null,
         valueGetter: (p) => p.row.telemetry.cemented_behind
       },
       {
         field: 'uptime',
-        headerName: 'Uptime',
+        headerName:  t('common.uptime', 'Uptime'),
         width: 150,
-        renderCell: (p) => (
-          <Uptime data={p.api.getRow(p.id).uptime} length={25} />
-        ),
+        renderCell: (p) => <Uptime data={p.api.getRow(p.id).uptime} length={25} />,
         valueGetter: (p) => (p.row.last_online || 0) - (p.row.last_offline || 0)
       },
       {
         field: 'version',
-        headerName: 'Version',
+        headerName: t('common.version', 'Version'),
         width: 110,
         valueGetter: (p) => p.row.version
       },
       {
         field: 'bandwidth_cap',
-        headerName: 'BW Limit',
+        headerName: t('common.bandwidth_limit_short', 'BW Limit'),
         width: 120,
         valueFormatter: (p) => {
-          if (p.api.getRow(p.id).telemetry.bandwidth_cap === 0)
-            return 'Unlimited'
+          if (p.api.getRow(p.id).telemetry.bandwidth_cap === 0) return t('common.unlimited', 'Unlimited')
           return p.api.getRow(p.id).telemetry.bandwidth_cap
-            ? bytesToSize(p.api.getRow(p.id).telemetry.bandwidth_cap).label
+            ? bytesToSize({ bytes: p.api.getRow(p.id).telemetry.bandwidth_cap, t }).label
             : null
         },
         valueGetter: (p) => {
           if (p.row.telemetry.bandwidth_cap === 0) return Infinity
           return p.row.telemetry.bandwidth_cap
-            ? bytesToSize(p.row.telemetry.bandwidth_cap).value
+            ? bytesToSize({ bytes: p.row.telemetry.bandwidth_cap, t }).value
             : null
         }
       },
       {
         field: 'peer_count',
-        headerName: 'Peers',
+        headerName: t('common.peers', 'Peers'),
         width: 100,
         valueGetter: (p) => p.row.telemetry.peer_count
       },
       {
         field: 'port',
-        headerName: 'Port',
+        headerName: t('common.port', 'Port'),
         valueGetter: (p) => p.row.telemetry.port
       },
       {
         field: 'blocks_behind',
-        headerName: 'Blocks Behind',
+        headerName: t('common.blocks_behind', 'Blocks Behind'),
         width: 145,
-        valueFormatter: (p) => (p.value ? BigNumber(p.value).toFormat() : null),
+        valueFormatter: (p) =>
+          p.value
+            ? BigNumber(p.value).toFormat()
+            : null,
         valueGetter: (p) => p.row.telemetry.block_behind
       },
       {
         field: 'cemented_count',
-        headerName: 'Confs.',
+        headerName: t('common.conf_short', 'Conf.'),
         width: 140,
-        valueFormatter: (p) => (p.value ? BigNumber(p.value).toFormat() : null),
+        valueFormatter: (p) =>
+          p.value
+            ? BigNumber(p.value).toFormat()
+            : null,
         valueGetter: (p) => p.row.telemetry.cemented_count
       },
       {
         field: 'block_count',
-        headerName: 'Blocks',
+        headerName: t('common.blocks', 'Blocks'),
         width: 140,
-        valueFormatter: (p) => (p.value ? BigNumber(p.value).toFormat() : null),
+        valueFormatter: (p) =>
+          p.value
+            ? BigNumber(p.value).toFormat()
+            : null,
         valueGetter: (p) => p.row.telemetry.block_count
       },
       {
         field: 'unchecked_count',
-        headerName: 'Unchecked',
+        headerName: t('common.unchecked_count', 'Unchecked'),
         width: 140,
-        valueFormatter: (p) => (p.value ? BigNumber(p.value).toFormat() : null),
+        valueFormatter: (p) =>
+          p.value
+            ? BigNumber(p.value).toFormat()
+            : null,
         valueGetter: (p) => p.row.telemetry.unchecked_count
       },
       {
         field: 'cpu_cores',
-        headerName: 'CPU Cores',
+        headerName: t('representatives.cpu_cores', 'CPU Cores'),
         width: 130,
         valueGetter: (p) => p.row.representative_meta.cpu_cores
       },
       {
         field: 'cpu_model',
         hide: true,
-        headerName: 'CPU Model',
+        headerName: t('representatives.cpu_model', 'CPU Model'),
         valueGetter: (p) => p.row.representative_meta.cpu_model
       },
       {
         field: 'watt_hour',
         width: 120,
-        headerName: 'TDP (wH)'
+        headerName: t('representatives.tdp', 'TDP (wH)')
       },
       {
         field: 'protocol_version',
-        headerName: 'Protocol',
+        headerName: t('representatives.protocol_version', 'Protocol'),
         width: 110,
         valueGetter: (p) => p.row.telemetry.protocol_version
       },
       {
         field: 'last_seen',
         width: 130,
-        headerName: 'Last Seen',
+        headerName: t('representatives.last_seen', 'Last Seen'),
         renderCell: (p) =>
           p.row.is_online ? (
             <FiberManualRecordIcon className='green' />
@@ -205,19 +223,19 @@ export default class Representatives extends React.Component {
       },
       {
         field: 'asname',
-        headerName: 'Host ASN',
+        headerName: t('representatives.host_asn', 'Host ASN'),
         width: 130,
         valueGetter: (p) => p.row.network.asname
       },
       {
         field: 'country',
-        headerName: 'Country',
+        headerName: t('common.country', 'Country'),
         width: 130,
         valueGetter: (p) => p.row.network.country
       },
       {
         field: 'address',
-        headerName: 'Address',
+        headerName: t('common.address', 'Address'),
         width: 320,
         valueGetter: (p) => p.row.telemetry.address
       }
