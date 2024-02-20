@@ -22,7 +22,7 @@ echarts.use([
   GridComponent
 ])
 
-export default function LedgerChartBlocks({ data, isLoading }) {
+export default function LedgerChartVolume({ data, isLoading }) {
   const { t } = useTranslation()
   const spanStyle =
     'float:right;margin-left:20px;font-size:14px;color:#666;font-weight:900'
@@ -126,7 +126,7 @@ export default function LedgerChartBlocks({ data, isLoading }) {
   )
 }
 
-LedgerChartBlocks.propTypes = {
+LedgerChartVolume.propTypes = {
   data: PropTypes.object,
   isLoading: PropTypes.bool
 }

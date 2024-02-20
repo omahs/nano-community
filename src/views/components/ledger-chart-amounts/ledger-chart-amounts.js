@@ -21,7 +21,7 @@ echarts.use([
   GridComponent
 ])
 
-export default function LedgerChartBlocks({ data, isLoading }) {
+export default function LedgerChartAmounts({ data, isLoading }) {
   const { t } = useTranslation()
   const ranges = {
     _1000000_count: '>1M',
@@ -97,7 +97,7 @@ export default function LedgerChartBlocks({ data, isLoading }) {
   )
 }
 
-LedgerChartBlocks.propTypes = {
+LedgerChartAmounts.propTypes = {
   data: PropTypes.object,
   isLoading: PropTypes.bool
 }
